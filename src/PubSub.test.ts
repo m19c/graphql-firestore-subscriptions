@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 
 import { PubSub } from './PubSub';
-import { FBAsyncIterator } from './AsyncIterator';
+import { CustomAsyncIterator } from './CustomAsyncIterator';
 
 describe('PubSub', () => {
   let ps: PubSub;
@@ -106,6 +106,6 @@ describe('PubSub', () => {
   test('asyncIterator returns an instance of AsyncIterator', () => {
     const topic = faker.random.uuid();
     ps.registerHandler(topic, () => () => {});
-    expect(ps.asyncIterator(topic)).toBeInstanceOf(FBAsyncIterator);
+    expect(ps.asyncIterator(topic)).toBeInstanceOf(CustomAsyncIterator);
   });
 });

@@ -1,6 +1,6 @@
 import { PubSubEngine } from 'graphql-subscriptions';
 
-import { FBAsyncIterator } from './AsyncIterator';
+import { CustomAsyncIterator } from './CustomAsyncIterator';
 
 type Listener = (...args: any[]) => any;
 type Unsubscribe = () => any | boolean;
@@ -62,6 +62,6 @@ export class PubSub implements PubSubEngine {
   }
 
   asyncIterator<T>(topics: string | string[]): AsyncIterator<T> {
-    return new FBAsyncIterator<T>(this, topics);
+    return new CustomAsyncIterator<T>(this, topics);
   }
 }
