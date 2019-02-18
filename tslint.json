@@ -1,0 +1,7 @@
+{
+  "extends": "@mrboolean/preset-tslint",
+  "rules": {
+    "no-console": true,
+    "import-name": false
+  }
+}
