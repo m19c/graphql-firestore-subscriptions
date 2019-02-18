@@ -20,28 +20,16 @@ enum Topic {
   NEW_COMMENT = 'NEW_COMMENT',
 }
 
-class NewCommentHandler extends AbstractTopicHandler<Topic.NEW_COMMENT> {
-  private unsubscribeFromChanges: Function;
-
-  subscribe() {
-    // or this.unsubscribe to overwrite the abstract method AbstractTopicHandler#unsubscribe
-    // directly
-    this.unsubscribeFromChanges = db.collection('comments').onSnapshot(snapshot => {
-      snapshot
-        .docChanges()
-        .filter(change => change.type === 'added')
-        .map(item => broadcast(item.data()));
-    });
-  }
-
-  unsubscribe() {
-    this.unsubscribeFromChanges();
-  }
-}
-
 const ps = new PubSub();
 
-ps.registerHandler(Topic.NEW_COMMENT, AbstractTopicHandler);
+ps.registerHandler(Topic.NEW_COMMENT, broadcast =>
+  db.collection('comments').onSnapshot(snapshot => {
+    snapshot
+      .docChanges()
+      .filter(change => change.type === 'added')
+      .map(item => broadcast(item.data()));
+  })
+);
 
 // ...
 ```

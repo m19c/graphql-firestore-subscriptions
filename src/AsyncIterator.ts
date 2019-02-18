@@ -1,7 +1,7 @@
 import { $$asyncIterator } from 'iterall';
 import { PubSubEngine } from 'graphql-subscriptions';
 
-export class AsyncIterator<T> implements AsyncIterator<T> {
+export class FBAsyncIterator<T> implements AsyncIterator<T> {
   private pubSub: PubSubEngine;
   private topics: string[];
   private pullQueue: Function[] = [];

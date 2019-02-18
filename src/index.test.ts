@@ -1,10 +1,8 @@
 import { PubSub as OriginalPubSub } from './PubSub';
-import { AbstractTopicHandler as OriginalAbstractTopicHandler } from './AbstractTopicHandler';
-import PubSub, { AbstractTopicHandler } from './';
+import PubSub from './';
 
 describe('index', () => {
-  test('returns PubSub as well as AbstractTopicHandler', () => {
+  test('returns PubSub', () => {
     expect(PubSub).toBe(OriginalPubSub);
-    expect(AbstractTopicHandler).toBe(OriginalAbstractTopicHandler);
   });
 });
