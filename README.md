@@ -58,7 +58,7 @@ ps.registerHandler(
   ...createFallThroughHandler(db, {
     topic: Topic.NEW_COMMENT,
     collection: 'comment',
-    typeFilter: ['added'],
+    filter: ['added'],
   })
 );
 ```
@@ -79,11 +79,11 @@ enum Topic {
 createFallThroughHandlerFromMap(db, {
   [Topic.NEW_COMMENT]: {
     collection: 'comment',
-    typeFilter: ['added'],
+    filter: ['added'],
   },
   [Topic.UPDATE_COMMENT]: {
     collection: 'comment',
-    typeFilter: [modified],
+    filter: ['modified'],
   },
 }).forEach((topic, handler) => ps.registerHandler(topic, handler));
 ```
