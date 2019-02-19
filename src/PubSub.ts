@@ -3,8 +3,8 @@ import { PubSubEngine } from 'graphql-subscriptions';
 import { CustomAsyncIterator } from './CustomAsyncIterator';
 
 type Listener = (...args: any[]) => any;
-type Unsubscribe = () => any | boolean;
-type Handler = (broadcast: Function, options?: Object) => Unsubscribe;
+export type Unsubscribe = () => any | boolean;
+export type Handler = (broadcast: Function, options?: Object) => Unsubscribe;
 
 /**
  * @class
