@@ -1,1 +1,7 @@
 src/
+examples/
+coverage/
+.github/
+prettier.config.js
+tsconfig.json
+tslint.json
