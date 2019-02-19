@@ -1,6 +1,6 @@
 {
   "name": "graphql-firestore-subscriptions",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A simple & powerful package to broadcast events from Cloud Firestore over an AsyncIterator to your GraphQL Subscription Resolver.",
   "main": "dist/index.js",
   "scripts": {

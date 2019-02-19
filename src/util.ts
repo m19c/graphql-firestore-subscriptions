@@ -18,9 +18,11 @@ export enum TransformStrategy {
   DATA = 'data',
 }
 
+export type TransformFunction = (change: DocumentChange) => any;
+
 export interface FallThroughHandlerBaseOptions {
   collection: string;
-  transform?: TransformStrategy | ((change: DocumentChange) => any);
+  transform?: TransformStrategy | TransformFunction;
   filter?: DocumentChangeType[] | Filter;
 }
 
