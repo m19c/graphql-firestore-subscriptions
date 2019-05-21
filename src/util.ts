@@ -49,7 +49,10 @@ export function createFallThroughHandler(
     broadcast =>
       fs.collection(options.collection).onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
-          if (typeof options.filter === 'function' && !options.filter(change)) {
+          if (
+            (typeof options.filter === 'function' && !options.filter(change)) ||
+            Array.isArray(options.filter) && !options.filter.includes(change.type)
+          ) {
             return;
           }
 

@@ -1,6 +1,6 @@
 {
   "name": "graphql-firestore-subscriptions",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple & powerful package to broadcast events from Cloud Firestore over an AsyncIterator to your GraphQL Subscription Resolver.",
   "main": "dist/index.js",
   "scripts": {
@@ -16,7 +16,13 @@
     "type": "git",
     "url": "git+https://github.com/MrBoolean/graphql-firestore-subscriptions.git"
   },
-  "keywords": ["graphql", "firestore", "firebase", "subscription", "apollo"],
+  "keywords": [
+    "graphql",
+    "firestore",
+    "firebase",
+    "subscription",
+    "apollo"
+  ],
   "author": "Marc Binder <marcandrebinder@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -31,6 +37,7 @@
     "@types/faker": "^4.1.5",
     "@types/invariant": "^2.2.29",
     "@types/jest": "^24.0.6",
+    "@types/node": "^12.0.2",
     "faker": "^4.1.0",
     "graphql-subscriptions": "^1.0.0",
     "jest": "^24.1.0",
@@ -40,13 +47,26 @@
     "typescript": "^3.3.3"
   },
   "jest": {
-    "coveragePathIgnorePatterns": ["node_modules", "dist"],
-    "collectCoverageFrom": ["src/**/*.ts", "!src/**/*.test.ts"],
+    "coveragePathIgnorePatterns": [
+      "node_modules",
+      "dist"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/*.test.ts"
+    ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   },
   "dependencies": {
     "invariant": "^2.2.4",
