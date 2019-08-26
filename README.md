@@ -3,7 +3,7 @@
 _graphql-firestore-subscriptions_ implements the `PubSubEngine` interface from the [graphql-subscriptions](https://github.com/apollographql/graphql-subscriptions) package.
 
 Unlike other databases, Goole's Firestore comes across with real time updates. Therefore, it is not required to publish events to a queue or a pub-sub.
-However, there is still something to do to get the data to the clients. In graphql-firestore-subscriptions thus tasks are called handlers. They are subscribing a specific topic and broadcast whatever you want over an AsyncIterator which is compatible with graphql-subscriptions.
+However, there is still something to do to get the data to the clients. In graphql-firestore-subscriptions those tasks are called handlers. They are subscribing a specific topic and broadcast whatever you want over an AsyncIterator which is compatible with graphql-subscriptions.
 
 ## Usage
 
@@ -67,7 +67,7 @@ You can also create multiple fall-through handlers at once:
 
 ```typescript
 import PubSub, { createFallThroughHandlerFromMap } from 'graphql-firestore-subscriptions';
-import db from '../path/to/firestore/conenction';
+import db from '../path/to/firestore/connection';
 
 // ...
 
@@ -94,7 +94,7 @@ See API for additional information about how `createFallThroughHandlerFromMap` /
 
 ```typescript
 import PubSub from 'graphql-firestore-subscriptions';
-import db from '../path/to/firestore/conenction';
+import db from '../path/to/firestore/connection';
 
 enum Topic {
   NEW_COMMENT = 'NEW_COMMENT',
@@ -151,7 +151,7 @@ export const resolvers = {
 };
 ```
 
-Calling `asyncIterator(topics: string | string[])` will subscribe to the given topics and will return an AsyncIterator binded to the `PubSubEngine` of **graphql-firestore-subscriptions**.
+Calling `asyncIterator(topics: string | string[])` will subscribe to the given topics and will return an AsyncIterator bound to the `PubSubEngine` of **graphql-firestore-subscriptions**.
 Everytime, a handler calls the obtained `broadcast`-function, the `PubSubEngine` of **graphql-firestore-subscriptions** will publish the event.
 
 ## API
