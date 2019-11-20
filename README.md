@@ -109,7 +109,7 @@ ps.registerHandler(Topic.NEW_COMMENT, broadcast =>
     snapshot
       .docChanges()
       .filter(change => change.type === 'added')
-      .map(item => broadcast(item.data()));
+      .map(item => broadcast(item.doc.data()));
   })
 );
 
