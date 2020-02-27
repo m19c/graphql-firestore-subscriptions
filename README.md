@@ -2,7 +2,7 @@
 
 _graphql-firestore-subscriptions_ implements the `PubSubEngine` interface from the [graphql-subscriptions](https://github.com/apollographql/graphql-subscriptions) package.
 
-Unlike other databases, Goole's Firestore comes across with real time updates. Therefore, it is not required to publish events to a queue or a pub-sub.
+Unlike other databases, Google's Firestore comes across with real time updates. Therefore, it is not required to publish events to a queue or a pub-sub.
 However, there is still something to do to get the data to the clients. In graphql-firestore-subscriptions those tasks are called handlers. They are subscribing a specific topic and broadcast whatever you want over an AsyncIterator which is compatible with graphql-subscriptions.
 
 ## Usage
