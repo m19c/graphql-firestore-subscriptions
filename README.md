@@ -154,6 +154,33 @@ export const resolvers = {
 Calling `asyncIterator(topics: string | string[])` will subscribe to the given topics and will return an AsyncIterator bound to the `PubSubEngine` of **graphql-firestore-subscriptions**.
 Everytime, a handler calls the obtained `broadcast`-function, the `PubSubEngine` of **graphql-firestore-subscriptions** will publish the event.
 
+You can even implement the resolver with passing arguments to the subscription
+
+```typescript
+export const resolvers = {
+  Subscription: {
+    newComment: {
+      subscribe: (parent, args, context) => ps.createAsyncIterator(Topic.NEW_COMMENT, args),
+    },
+  },
+};
+```
+
+You will be able to access those arguments within the registered handler. 
+
+```typescript
+ps.registerHandler(Topic.NEW_COMMENT, (broadcast, args) =>
+  // Note, that `onSnapshot` returns a unsubscribe function which
+  // returns void.
+  db.collection('comments').where('userId', '==', args.userId).onSnapshot(snapshot => {
+    snapshot
+      .docChanges()
+      .filter(change => change.type === 'added')
+      .map(item => broadcast(item.doc.data()));
+  })
+);
+```
+
 ## API
 
 ### createFallThroughHandler
