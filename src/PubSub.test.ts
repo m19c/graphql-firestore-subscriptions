@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-import { PubSub } from './PubSub';
+import { Handler, PubSub } from './PubSub';
 import { CustomAsyncIterator } from './CustomAsyncIterator';
 
 describe('PubSub', () => {
@@ -97,6 +97,27 @@ describe('PubSub', () => {
         expect(err).toBeTruthy();
       }
     });
+
+    test('deletes arguments from unsubscribed topic', async () => {
+      const topic = faker.string.uuid();
+      
+      // define my data
+      interface MyData { word: string; }
+      const data: MyData = { word: faker.word.adjective() }
+      
+      // create the handers and register it
+      const handler: Handler<MyData> = (broadcast, args) => {
+        expect(args).toEqual(expect.objectContaining({ word: data.word }))
+        return () => {}
+      }
+      ps.registerHandler(topic, handler);
+      ps.createAsyncIterator(topic, data)
+  
+      // Call the handler with the subscribe
+      const subscriptionId = await ps.subscribe(topic, () => {});
+      ps.unsubscribe(subscriptionId);
+      expect((ps as any).argsForHandlers.has(topic)).toBe(false)
+    });
   });
 
   test('publish returns undefined', async () => {
@@ -107,5 +128,33 @@ describe('PubSub', () => {
     const topic = faker.string.uuid();
     ps.registerHandler(topic, () => () => {});
     expect(ps.asyncIterator(topic)).toBeInstanceOf(CustomAsyncIterator);
+  });
+
+  test('createAsyncIterator passes args to handler', async () => {
+    const topic1 = faker.string.uuid();
+    
+    interface MyData { word: string; }
+    const data: MyData = { word: faker.word.adjective() }
+    
+    // create the handers and register it
+    const handler: Handler<MyData> = (broadcast, args) => {
+      expect(args).toEqual(expect.objectContaining({ word: data.word }))
+      return () => {}
+    }
+    ps.registerHandler(topic1, handler);
+    ps.createAsyncIterator(topic1, data)
+    expect((ps as any).argsForHandlers.has(topic1)).toBe(true)
+    await ps.subscribe(topic1, () => {});
+
+    // test for an array of topics
+    const topic2 = [faker.string.uuid(), faker.string.uuid(), faker.string.uuid()];
+    topic2.forEach((topic) => {
+      ps.registerHandler(topic, handler);
+    })
+    ps.createAsyncIterator(topic2, data)
+    topic2.forEach(async (topic) => {
+      expect((ps as any).argsForHandlers.has(topic)).toBe(true)
+      await ps.subscribe(topic, () => {});
+    })
   });
 });

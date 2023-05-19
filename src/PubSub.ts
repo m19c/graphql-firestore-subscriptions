@@ -4,7 +4,7 @@ import { CustomAsyncIterator } from './CustomAsyncIterator';
 
 type Listener = (...args: any[]) => any;
 export type Unsubscribe = () => any | boolean;
-export type Handler = (broadcast: Function, options?: Object) => Unsubscribe;
+export type Handler<T = any> = (broadcast: Function, options?: T) => Unsubscribe;
 
 /**
  * @class
@@ -14,6 +14,8 @@ export class PubSub implements PubSubEngine {
   private handlers: Map<string, Handler> = new Map();
   private nextSubscriptionId: number = 0;
   private subscriptions: Map<number, Unsubscribe> = new Map();
+  private argsForHandlers: Map<string, any> = new Map();
+  private subscriptionIdsWithTopic: Map<number, any> = new Map();
 
   private getNextSubscriptionId(): number {
     this.nextSubscriptionId += 1;
@@ -36,8 +38,10 @@ export class PubSub implements PubSubEngine {
       throw new Error(`Cannot subscribe to topic ${topic} - no handlers`);
     }
 
+    const args = this.argsForHandlers.get(topic);
     const subscriptionId = this.getNextSubscriptionId();
-    this.subscriptions.set(subscriptionId, handler(onMessage, options));
+    this.subscriptions.set(subscriptionId, handler(onMessage, { ...options, ...args }));
+    this.subscriptionIdsWithTopic.set(subscriptionId, topic);
 
     return Promise.resolve(subscriptionId);
   }
@@ -51,6 +55,8 @@ export class PubSub implements PubSubEngine {
 
     const wasSuccessful = unsubscribe();
     this.subscriptions.delete(subscriptionId);
+    const topic = this.subscriptionIdsWithTopic.get(subscriptionId);
+    if (topic) this.argsForHandlers.delete(topic);
 
     if (typeof wasSuccessful === 'boolean' && !wasSuccessful) {
       throw new Error(`Unable to unsubscribe ${subscriptionId}`);
@@ -61,6 +67,17 @@ export class PubSub implements PubSubEngine {
   // eslint-disable-next-line
   public async publish(topic: string, payload: any): Promise<void> {
     // noop
+  }
+
+  public createAsyncIterator<T>(topics: string | string[], args: T): AsyncIterator<T> {
+    if (Array.isArray(topics)) {
+      topics.forEach((topic) => {
+        this.argsForHandlers.set(topic, args)
+      })
+    } else {
+      this.argsForHandlers.set(topics, args)
+    }
+    return this.asyncIterator(topics);
   }
 
   asyncIterator<T>(topics: string | string[]): AsyncIterator<T> {
