@@ -57,6 +57,8 @@ export class PubSub implements PubSubEngine {
     }
   }
 
+  // ignoring because it's a required implementation function
+  // eslint-disable-next-line
   public async publish(topic: string, payload: any): Promise<void> {
     // noop
   }

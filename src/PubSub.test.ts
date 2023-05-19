@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 
 import { PubSub } from './PubSub';
 import { CustomAsyncIterator } from './CustomAsyncIterator';
@@ -17,7 +17,7 @@ describe('PubSub', () => {
 
   describe('registerHandler', () => {
     test('throws an error if the topic is already present', () => {
-      const topic = faker.random.uuid();
+      const topic = faker.string.uuid();
       ps.registerHandler(topic, () => () => {});
 
       expect.assertions(1);
@@ -29,7 +29,7 @@ describe('PubSub', () => {
     });
 
     test('registers the handler', () => {
-      const topic = faker.random.uuid();
+      const topic = faker.string.uuid();
       const handler = () => () => {};
 
       expect(ps.registerHandler(topic, handler)).toBe(ps);
@@ -39,7 +39,7 @@ describe('PubSub', () => {
 
   describe('subscribe', () => {
     test('throws an error if there is no topic-handler present', () => {
-      const topic = faker.random.uuid();
+      const topic = faker.string.uuid();
 
       expect.assertions(1);
       try {
@@ -50,7 +50,7 @@ describe('PubSub', () => {
     });
 
     test('it stores the unsubscribe function', async () => {
-      const topic = faker.random.uuid();
+      const topic = faker.string.uuid();
       const unsubscribe = () => {};
       const handler = () => unsubscribe;
 
@@ -63,11 +63,11 @@ describe('PubSub', () => {
 
   describe('unsubscribe', () => {
     test('returns undefined if there is no unsubscribe-function present', () => {
-      expect(ps.unsubscribe(faker.random.number())).toBeUndefined();
+      expect(ps.unsubscribe(faker.number.int())).toBeUndefined();
     });
 
     test('it calls the unsubscribe-function & deletes the subscription', async () => {
-      const topic = faker.random.uuid();
+      const topic = faker.string.uuid();
       const unsubscribe = jest.fn();
       const handler = () => unsubscribe;
 
@@ -83,7 +83,7 @@ describe('PubSub', () => {
     });
 
     test('throws an error if the unsubscribe-function returns false', async () => {
-      const topic = faker.random.uuid();
+      const topic = faker.string.uuid();
       const unsubscribe = jest.fn(() => false);
       const handler = () => unsubscribe;
 
@@ -100,11 +100,11 @@ describe('PubSub', () => {
   });
 
   test('publish returns undefined', async () => {
-    expect(await ps.publish(faker.random.uuid(), {})).toBeUndefined();
+    expect(await ps.publish(faker.string.uuid(), {})).toBeUndefined();
   });
 
   test('asyncIterator returns an instance of AsyncIterator', () => {
-    const topic = faker.random.uuid();
+    const topic = faker.string.uuid();
     ps.registerHandler(topic, () => () => {});
     expect(ps.asyncIterator(topic)).toBeInstanceOf(CustomAsyncIterator);
   });

@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 
 import { PubSubEngine } from 'graphql-subscriptions';
 import { CustomAsyncIterator } from './CustomAsyncIterator';
@@ -21,20 +21,20 @@ describe('CustomAsyncIterator', () => {
       }),
       unsubscribe: jest.fn(),
     } as any) as PubSubEngine;
-    topic = faker.random.uuid();
+    topic = faker.string.uuid();
     ai = new CustomAsyncIterator(ps, topic);
   });
 
   test('it converts a single topic to an array of topics', () => {
-    const topic = faker.random.word();
+    const topic = faker.word.adjective();
     const topicAI = new CustomAsyncIterator(ps, topic);
 
     expect((topicAI as any).topics).toMatchObject([topic]);
   });
 
   it('accepts multiple topics', () => {
-    const topicA = faker.random.word();
-    const topicB = faker.random.word();
+    const topicA = faker.word.adjective();
+    const topicB = faker.word.adjective();
     const topicAI = new CustomAsyncIterator(ps, [topicA, topicB]);
 
     expect((topicAI as any).topics).toMatchObject([topicA, topicB]);
@@ -52,8 +52,8 @@ describe('CustomAsyncIterator', () => {
   });
 
   test('broadcast events', async () => {
-    const eventA = faker.random.word();
-    const eventB = faker.random.word();
+    const eventA = faker.word.adjective();
+    const eventB = faker.word.adjective();
 
     broadcast(eventA);
     broadcast(eventB);
@@ -73,7 +73,7 @@ describe('CustomAsyncIterator', () => {
   });
 
   test('is able to throw an error', async () => {
-    const message = faker.random.words();
+    const message = faker.word.words();
 
     expect.assertions(1);
     try {
@@ -88,7 +88,7 @@ describe('CustomAsyncIterator', () => {
   });
 
   test('resolves immediately', async () => {
-    const event = faker.random.words();
+    const event = faker.word.words();
 
     setTimeout(() => {
       broadcast(event);
