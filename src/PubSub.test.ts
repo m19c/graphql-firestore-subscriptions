@@ -49,15 +49,22 @@ describe('PubSub', () => {
       }
     });
 
-    test('it stores the unsubscribe function', async () => {
+    test('it stores the subscription properties', async () => {
       const topic = faker.string.uuid();
       const unsubscribe = () => {};
       const handler = () => unsubscribe;
 
       ps.registerHandler(topic, handler);
-      const subscriptionId = await ps.subscribe(topic, () => {});
+      const subscriptionId = await ps.subscribe(topic, () => {})
 
-      expect((ps as any).subscriptions.get(subscriptionId)).toBe(unsubscribe);
+      expect((ps as any).subscriptions.get(topic)).toStrictEqual(
+        {
+          topic,
+          subscriptionId,
+          unsubscribe, 
+          args: undefined
+        }
+      );
     });
   });
 
@@ -74,12 +81,12 @@ describe('PubSub', () => {
       ps.registerHandler(topic, handler);
       const subscriptionId = await ps.subscribe(topic, () => {});
 
-      expect((ps as any).subscriptions.has(subscriptionId)).toBeTruthy();
+      expect((ps as any).subscriptions.has(topic)).toBeTruthy();
 
       ps.unsubscribe(subscriptionId);
 
       expect(unsubscribe).toHaveBeenCalled();
-      expect((ps as any).subscriptions.has(subscriptionId)).toBeFalsy();
+      expect((ps as any).subscriptions.has(topic)).toBeFalsy();
     });
 
     test('throws an error if the unsubscribe-function returns false', async () => {
@@ -96,27 +103,6 @@ describe('PubSub', () => {
       } catch (err) {
         expect(err).toBeTruthy();
       }
-    });
-
-    test('deletes arguments from unsubscribed topic', async () => {
-      const topic = faker.string.uuid();
-      
-      // define my data
-      interface MyData { word: string; }
-      const data: MyData = { word: faker.word.adjective() }
-      
-      // create the handers and register it
-      const handler: Handler<MyData> = (broadcast, args) => {
-        expect(args).toEqual(expect.objectContaining({ word: data.word }))
-        return () => {}
-      }
-      ps.registerHandler(topic, handler);
-      ps.createAsyncIterator(topic, data)
-  
-      // Call the handler with the subscribe
-      const subscriptionId = await ps.subscribe(topic, () => {});
-      ps.unsubscribe(subscriptionId);
-      expect((ps as any).argsForHandlers.has(topic)).toBe(false)
     });
   });
 
@@ -137,13 +123,13 @@ describe('PubSub', () => {
     const data: MyData = { word: faker.word.adjective() }
     
     // create the handers and register it
-    const handler: Handler<MyData> = (broadcast, args) => {
-      expect(args).toEqual(expect.objectContaining({ word: data.word }))
+    const handler: Handler<MyData> = (_broadcast, options) => {
+      expect(options).toEqual(expect.objectContaining({ args: { word: data.word }}))
       return () => {}
     }
     ps.registerHandler(topic1, handler);
     ps.createAsyncIterator(topic1, data)
-    expect((ps as any).argsForHandlers.has(topic1)).toBe(true)
+    expect((ps as any).subscriptions.get(topic1).args).toBeTruthy()
     await ps.subscribe(topic1, () => {});
 
     // test for an array of topics
@@ -153,7 +139,7 @@ describe('PubSub', () => {
     })
     ps.createAsyncIterator(topic2, data)
     topic2.forEach(async (topic) => {
-      expect((ps as any).argsForHandlers.has(topic)).toBe(true)
+      expect((ps as any).subscriptions.get(topic).args).toBeTruthy()
       await ps.subscribe(topic, () => {});
     })
   });

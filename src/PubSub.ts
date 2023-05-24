@@ -4,7 +4,8 @@ import { CustomAsyncIterator } from './CustomAsyncIterator';
 
 type Listener = (...args: any[]) => any;
 export type Unsubscribe = () => any | boolean;
-export type Handler<T = any> = (broadcast: Function, options?: T) => Unsubscribe;
+export type Handler<T = unknown> = (broadcast: Function, options?: { args: T }) => Unsubscribe;
+export type Subscription = { topic: string; subscriptionId?: number; args?: unknown; unsubscribe?: Unsubscribe; }
 
 /**
  * @class
@@ -13,21 +14,28 @@ export type Handler<T = any> = (broadcast: Function, options?: T) => Unsubscribe
 export class PubSub implements PubSubEngine {
   private handlers: Map<string, Handler> = new Map();
   private nextSubscriptionId: number = 0;
-  private subscriptions: Map<number, Unsubscribe> = new Map();
-  private argsForHandlers: Map<string, any> = new Map();
-  private subscriptionIdsWithTopic: Map<number, any> = new Map();
+  private subscriptions: Map<string, Subscription> = new Map();
 
   private getNextSubscriptionId(): number {
     this.nextSubscriptionId += 1;
     return this.nextSubscriptionId;
   }
 
-  public registerHandler(topic: string, handler: Handler): PubSub {
+  private getSubscriptionById(subscriptionId: number): Subscription | undefined {
+    for (const subscription of this.subscriptions.values()) {
+      if (subscription.subscriptionId === subscriptionId) {
+        return subscription;
+      }
+    }
+    return undefined;
+  }
+
+  public registerHandler<T>(topic: string, handler: Handler<T>): PubSub {
     if (this.handlers.has(topic)) {
       throw new Error(`Duplication: there is already a handler for the topic ${topic} present`);
     }
 
-    this.handlers.set(topic, handler);
+    this.handlers.set(topic, handler as Handler);
     return this;
   }
 
@@ -38,27 +46,28 @@ export class PubSub implements PubSubEngine {
       throw new Error(`Cannot subscribe to topic ${topic} - no handlers`);
     }
 
-    const args = this.argsForHandlers.get(topic);
+    let subscription = this.subscriptions.get(topic) ?? {} as Subscription;
     const subscriptionId = this.getNextSubscriptionId();
-    this.subscriptions.set(subscriptionId, handler(onMessage, { ...options, ...args }));
-    this.subscriptionIdsWithTopic.set(subscriptionId, topic);
+    subscription = {
+      topic,
+      subscriptionId,
+      args: subscription?.args,
+      unsubscribe: handler(onMessage, { ...options, args: subscription?.args })
+    }
+    this.subscriptions.set(topic, subscription)
 
     return Promise.resolve(subscriptionId);
   }
 
   public unsubscribe(subscriptionId: number) {
-    const unsubscribe = this.subscriptions.get(subscriptionId);
+    const subscription = this.getSubscriptionById(subscriptionId);
 
-    if (!unsubscribe) {
+    if (!subscription || !subscription?.unsubscribe) {
       return;
     }
 
-    const wasSuccessful = unsubscribe();
-    this.subscriptions.delete(subscriptionId);
-    const topic = this.subscriptionIdsWithTopic.get(subscriptionId);
-    if (topic) {
-        this.argsForHandlers.delete(topic);
-    }
+    const wasSuccessful = subscription.unsubscribe();
+    this.subscriptions.delete(subscription.topic)
 
     if (typeof wasSuccessful === 'boolean' && !wasSuccessful) {
       throw new Error(`Unable to unsubscribe ${subscriptionId}`);
@@ -72,13 +81,14 @@ export class PubSub implements PubSubEngine {
   }
 
   public createAsyncIterator<T>(topics: string | string[], args: T): AsyncIterator<T> {
-    if (Array.isArray(topics)) {
-      topics.forEach((topic) => {
-        this.argsForHandlers.set(topic, args)
+    (([] as string[]).concat(topics)).forEach((topic) => {
+      this.subscriptions.set(topic, { 
+        topic: topic, 
+        subscriptionId: undefined,
+        args, 
+        unsubscribe: undefined 
       })
-    } else {
-      this.argsForHandlers.set(topics, args)
-    }
+    });
     return this.asyncIterator(topics);
   }
 

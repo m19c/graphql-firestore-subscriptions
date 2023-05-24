@@ -123,5 +123,13 @@ module.exports = {
 			"warn",
 			{ "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
 		]
-    }
+    },
+    "overrides": [
+      {
+        "files": ["./examples/**/*.*"],
+        "rules": {
+          "no-console": "off"
+        }
+      }
+    ]
 };

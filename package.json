@@ -7,7 +7,7 @@
     "test": "npm-run-all test:unit",
     "test:unit": "jest --coverage",
     "test:unit:watch": "jest --watch",
-    "test:lint": "tslint -c tslint.json --project .",
+    "test:lint": "npx eslint --max-warnings=0 --ext .ts . --fix",
     "build": "npm-run-all build:clean build:transpile",
     "build:transpile": "tsc",
     "build:clean": "rimraf dist/*"
