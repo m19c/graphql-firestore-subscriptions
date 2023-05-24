@@ -56,7 +56,9 @@ export class PubSub implements PubSubEngine {
     const wasSuccessful = unsubscribe();
     this.subscriptions.delete(subscriptionId);
     const topic = this.subscriptionIdsWithTopic.get(subscriptionId);
-    if (topic) this.argsForHandlers.delete(topic);
+    if (topic) {
+        this.argsForHandlers.delete(topic);
+    }
 
     if (typeof wasSuccessful === 'boolean' && !wasSuccessful) {
       throw new Error(`Unable to unsubscribe ${subscriptionId}`);
