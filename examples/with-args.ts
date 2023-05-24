@@ -7,7 +7,7 @@ enum Topic {
 
 const ps = new PubSub();
 
-type MyData = { userId: string}
+type MyData = { userId: string }
 
 const handler: Handler<MyData> = (broadcast, options) => {
     const { args } = options ?? {};
