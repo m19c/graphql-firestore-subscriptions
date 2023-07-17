@@ -29,6 +29,6 @@
     "strict": false,
     "alwaysStrict": true
   },
-  "exclude": ["node_modules"],
-  "include": ["./src/**/*.ts", "./examples/**/*.ts"]
+  "exclude": ["node_modules", "example"],
+  "include": ["./src/**/*.ts"]
 }
