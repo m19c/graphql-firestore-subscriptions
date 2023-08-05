@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { faker } from '@faker-js/faker';
 import { Firestore, CollectionReference, DocumentChange, QuerySnapshot, DocumentChangeType } from '@google-cloud/firestore';
 
 import * as util from './util';
 
-const createFSSnapshotChange = (type: DocumentChangeType, data: unknown): DocumentChange => {
+const createFSSnapshotChange = (type: DocumentChangeType, data: Object): DocumentChange => {
   const change = {
     type,
     doc: {
@@ -46,7 +45,7 @@ const createFSCollection = (id: string): FakeCollection => {
 const createFS = (...collections: CollectionReference[]): Firestore => {
   const fs = {
     collection: jest.fn((path: string) => {
-      return collections.filter(item => item.id === path).shift() != null || null;
+      return collections.filter(item => item.id === path).shift() || null;
     }),
   } as any;
 
