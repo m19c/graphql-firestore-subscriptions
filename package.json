@@ -1,5 +1,5 @@
 {
-  "name": "graphql-firestore-subscriptions",
+  "name": "@m19c/graphql-firestore-subscriptions",
   "version": "1.1.0",
   "description": "A simple & powerful package to broadcast events from Cloud Firestore over an AsyncIterator to your GraphQL Subscription Resolver.",
   "main": "dist/index.js",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MrBoolean/graphql-firestore-subscriptions.git"
+    "url": "git+https://github.com/m19c/graphql-firestore-subscriptions.git"
   },
   "keywords": [
     "graphql",
@@ -26,9 +26,9 @@
   "author": "Marc Binder <marcandrebinder@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MrBoolean/graphql-firestore-subscriptions/issues"
+    "url": "https://github.com/m19c/graphql-firestore-subscriptions/issues"
   },
-  "homepage": "https://github.com/MrBoolean/graphql-firestore-subscriptions#readme",
+  "homepage": "https://github.com/m19c/graphql-firestore-subscriptions#readme",
   "peerDependencies": {
     "graphql-subscriptions": "^1.0.0"
   },
