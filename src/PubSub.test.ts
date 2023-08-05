@@ -61,7 +61,7 @@ describe('PubSub', () => {
         {
           topic,
           subscriptionId,
-          unsubscribe, 
+          unsubscribe,
           args: undefined
         }
       );
@@ -118,10 +118,10 @@ describe('PubSub', () => {
 
   test('createAsyncIterator passes args to handler', async () => {
     const topic1 = faker.string.uuid();
-    
+
     interface MyData { word: string; }
     const data: MyData = { word: faker.word.adjective() }
-    
+
     // create the handers and register it
     const handler: Handler<MyData> = (_broadcast, options) => {
       expect(options).toEqual(expect.objectContaining({ args: { word: data.word }}))

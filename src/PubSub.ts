@@ -82,11 +82,11 @@ export class PubSub implements PubSubEngine {
 
   public createAsyncIterator<T>(topics: string | string[], args: T): AsyncIterator<T> {
     (([] as string[]).concat(topics)).forEach((topic) => {
-      this.subscriptions.set(topic, { 
-        topic: topic, 
+      this.subscriptions.set(topic, {
+        topic: topic,
         subscriptionId: undefined,
-        args, 
-        unsubscribe: undefined 
+        args,
+        unsubscribe: undefined
       })
     });
     return this.asyncIterator(topics);
