@@ -255,16 +255,16 @@ The following steps are describing the way from an idea / bug / ... to a pull-re
 
 As described in #9, `onSnapshot` provides an initial snapshot of the current data. Handlers that accept changes of a collection must handle this behaviour on their own. The best way to ignore the initial snapshot is to keep a variable that captures the first event and ignores it accordingly:
 
-```
-ps.registerHandler(events.MESSAGE_ADDED, broadcast => {
-  let isInitialSnapshot = true;
-  firestore.collectionGroup('Messages').onSnapshot(snapshot => {
+```typescript
+ps.registerHandler(events.MESSAGE_ADDED, (broadcast) => {
+  let isInitialSnapshot = true
+  firestore.collectionGroup("Messages").onSnapshot((snapshot) => {
     if (isInitialSnapshot) {
-      isInitialSnapshot = false;
-      return;
+      isInitialSnapshot = false
+      return
     }
 
     // ...
-  });
-});
+  })
+})
 ```
