@@ -1,15 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { faker } from '@faker-js/faker';
-import {
-  Firestore,
-  CollectionReference,
-  DocumentChange,
-  QuerySnapshot,
-  DocumentChangeType,
-} from '@google-cloud/firestore';
+import { Firestore, CollectionReference, DocumentChange, QuerySnapshot, DocumentChangeType } from '@google-cloud/firestore';
 
 import * as util from './util';
 
-const createFSSnapshotChange = (type: DocumentChangeType, data: Object): DocumentChange => {
+const createFSSnapshotChange = (type: DocumentChangeType, data: unknown): DocumentChange => {
   const change = {
     type,
     doc: {
@@ -36,9 +31,7 @@ const createFSCollection = (id: string): FakeCollection => {
   let onSnapshotHandler: Function;
   const collection = {
     id,
-    onSnapshot: jest.fn(
-      (onSnapshot: (snapshot: QuerySnapshot) => any) => (onSnapshotHandler = onSnapshot)
-    ),
+    onSnapshot: jest.fn((onSnapshot: (snapshot: QuerySnapshot) => any) => (onSnapshotHandler = onSnapshot)),
   } as any;
 
   collection.trigger = (snapshot: QuerySnapshot) => {
@@ -53,7 +46,7 @@ const createFSCollection = (id: string): FakeCollection => {
 const createFS = (...collections: CollectionReference[]): Firestore => {
   const fs = {
     collection: jest.fn((path: string) => {
-      return collections.filter(item => item.id === path).shift() || null;
+      return collections.filter(item => item.id === path).shift() != null || null;
     }),
   } as any;
 
@@ -64,9 +57,9 @@ describe('util', () => {
   test('createTypeFilter returns function', () => {
     const typeFilter = util.createTypeFilter('added', 'modified');
 
-    expect(typeFilter(({ type: 'removed' } as any) as DocumentChange)).toBeFalsy();
-    expect(typeFilter(({ type: 'added' } as any) as DocumentChange)).toBeTruthy();
-    expect(typeFilter(({ type: 'modified' } as any) as DocumentChange)).toBeTruthy();
+    expect(typeFilter({ type: 'removed' } as any as DocumentChange)).toBeFalsy();
+    expect(typeFilter({ type: 'added' } as any as DocumentChange)).toBeTruthy();
+    expect(typeFilter({ type: 'modified' } as any as DocumentChange)).toBeTruthy();
   });
 
   let collection: FakeCollection;
@@ -100,15 +93,15 @@ describe('util', () => {
       createFSCollectionSnapshot(
         createFSSnapshotChange('added', {
           test: true,
-        })
-      )
+        }),
+      ),
     );
     collection.trigger(
       createFSCollectionSnapshot(
         createFSSnapshotChange('added', {
           test: false,
-        })
-      )
+        }),
+      ),
     );
     expect(broadcast).toHaveBeenCalledTimes(1);
   });

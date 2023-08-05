@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { PubSubEngine } from 'graphql-subscriptions';
 
 import { CustomAsyncIterator } from './CustomAsyncIterator';
 
 type Listener = (...args: unknown[]) => any;
+export type Broadcaster = (data: unknown) => void;
 export type Unsubscribe = () => any | boolean;
-export type Handler<T = unknown> = (broadcast: Function, options?: { args: T }) => Unsubscribe;
+export type Handler<T = unknown> = (broadcast: Broadcaster, options?: { args: T }) => Unsubscribe;
 export type Subscription = { topic: string; subscriptionId?: number; args?: unknown; unsubscribe?: Unsubscribe };
 
 /**
@@ -13,7 +15,7 @@ export type Subscription = { topic: string; subscriptionId?: number; args?: unkn
  */
 export class PubSub implements PubSubEngine {
   private handlers: Map<string, Handler> = new Map();
-  private nextSubscriptionId: number = 0;
+  private nextSubscriptionId = 0;
   private subscriptions: Map<string, Subscription> = new Map();
 
   private getNextSubscriptionId(): number {
@@ -42,7 +44,7 @@ export class PubSub implements PubSubEngine {
   public subscribe(topic: string, onMessage: Listener, options?: Object): Promise<number> {
     const handler = this.handlers.get(topic);
 
-    if (!handler) {
+    if (handler == null) {
       throw new Error(`Cannot subscribe to topic ${topic} - no handlers`);
     }
 
@@ -62,7 +64,7 @@ export class PubSub implements PubSubEngine {
   public unsubscribe(subscriptionId: number) {
     const subscription = this.getSubscriptionById(subscriptionId);
 
-    if (!subscription || !subscription?.unsubscribe) {
+    if (subscription == null || subscription?.unsubscribe == null) {
       return;
     }
 
@@ -83,7 +85,7 @@ export class PubSub implements PubSubEngine {
   public createAsyncIterator<T>(topics: string | string[], args: T): AsyncIterator<T> {
     ([] as string[]).concat(topics).forEach(topic => {
       this.subscriptions.set(topic, {
-        topic: topic,
+        topic,
         subscriptionId: undefined,
         args,
         unsubscribe: undefined,

@@ -1,13 +1,15 @@
 import { $$asyncIterator } from 'iterall';
 import { PubSubEngine } from 'graphql-subscriptions';
 
+type HandlerFunc<T> = (_: { value: T; done: boolean }) => void;
+
 export class CustomAsyncIterator<T, TReturn = unknown, TNext = undefined> implements AsyncIterator<T, TReturn, TNext> {
   private pubSub: PubSubEngine;
   private topics: string[];
-  private pullQueue: Function[] = [];
+  private pullQueue: HandlerFunc<T>[] = [];
   private pushQueue: T[] = [];
   private subscriptions: Promise<number[]>;
-  private isListening: boolean = true;
+  private isListening = true;
 
   /**
    * Creates an instance of CustomAsyncIterator.
@@ -111,7 +113,7 @@ export class CustomAsyncIterator<T, TReturn = unknown, TNext = undefined> implem
         return;
       }
 
-      this.pullQueue.push(resolve);
+      this.pullQueue.push(resolve as HandlerFunc<T>);
     });
   }
 
@@ -127,7 +129,7 @@ export class CustomAsyncIterator<T, TReturn = unknown, TNext = undefined> implem
 
     this.isListening = false;
     this.unsubscribeTopics(subscriptionIds);
-    this.pullQueue.forEach(resolve => resolve({ value: undefined, done: true }));
+    this.pullQueue.forEach(resolve => resolve({ value: undefined as T, done: true }));
     this.pullQueue.length = 0;
     this.pushQueue.length = 0;
   }

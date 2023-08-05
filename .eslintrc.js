@@ -1,8 +1,8 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'react'],
-  extends: ['plugin:@typescript-eslint/recommended', 'plugin:react/jsx-runtime'],
+  plugins: ['@typescript-eslint'],
+  extends: ['plugin:@typescript-eslint/recommended'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],

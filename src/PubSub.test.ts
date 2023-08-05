@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { faker } from '@faker-js/faker';
 
 import { Handler, PubSub } from './PubSub';
@@ -55,16 +56,14 @@ describe('PubSub', () => {
       const handler = () => unsubscribe;
 
       ps.registerHandler(topic, handler);
-      const subscriptionId = await ps.subscribe(topic, () => {})
+      const subscriptionId = await ps.subscribe(topic, () => {});
 
-      expect((ps as any).subscriptions.get(topic)).toStrictEqual(
-        {
-          topic,
-          subscriptionId,
-          unsubscribe,
-          args: undefined
-        }
-      );
+      expect((ps as any).subscriptions.get(topic)).toStrictEqual({
+        topic,
+        subscriptionId,
+        unsubscribe,
+        args: undefined,
+      });
     });
   });
 
@@ -119,28 +118,30 @@ describe('PubSub', () => {
   test('createAsyncIterator passes args to handler', async () => {
     const topic1 = faker.string.uuid();
 
-    interface MyData { word: string; }
-    const data: MyData = { word: faker.word.adjective() }
+    interface MyData {
+      word: string;
+    }
+    const data: MyData = { word: faker.word.adjective() };
 
     // create the handers and register it
     const handler: Handler<MyData> = (_broadcast, options) => {
-      expect(options).toEqual(expect.objectContaining({ args: { word: data.word }}))
-      return () => {}
-    }
+      expect(options).toEqual(expect.objectContaining({ args: { word: data.word } }));
+      return () => {};
+    };
     ps.registerHandler(topic1, handler);
-    ps.createAsyncIterator(topic1, data)
-    expect((ps as any).subscriptions.get(topic1).args).toBeTruthy()
+    ps.createAsyncIterator(topic1, data);
+    expect((ps as any).subscriptions.get(topic1).args).toBeTruthy();
     await ps.subscribe(topic1, () => {});
 
     // test for an array of topics
     const topic2 = [faker.string.uuid(), faker.string.uuid(), faker.string.uuid()];
-    topic2.forEach((topic) => {
+    topic2.forEach(topic => {
       ps.registerHandler(topic, handler);
-    })
-    ps.createAsyncIterator(topic2, data)
-    topic2.forEach(async (topic) => {
-      expect((ps as any).subscriptions.get(topic).args).toBeTruthy()
+    });
+    ps.createAsyncIterator(topic2, data);
+    topic2.forEach(async topic => {
+      expect((ps as any).subscriptions.get(topic).args).toBeTruthy();
       await ps.subscribe(topic, () => {});
-    })
+    });
   });
 });

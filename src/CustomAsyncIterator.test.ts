@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { faker } from '@faker-js/faker';
 
 import { PubSubEngine } from 'graphql-subscriptions';
@@ -13,14 +14,14 @@ describe('CustomAsyncIterator', () => {
 
   beforeEach(() => {
     currentSubscriptionId = 0;
-    ps = ({
+    ps = {
       subscribe: jest.fn((_, onMessage) => {
         broadcast = onMessage;
         currentSubscriptionId += 1;
         return Promise.resolve(currentSubscriptionId);
       }),
       unsubscribe: jest.fn(),
-    } as any) as PubSubEngine;
+    } as any as PubSubEngine;
     topic = faker.string.uuid();
     ai = new CustomAsyncIterator(ps, topic);
   });

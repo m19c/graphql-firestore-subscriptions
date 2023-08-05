@@ -1,10 +1,4 @@
-import {
-  DocumentChange,
-  DocumentData,
-  QueryDocumentSnapshot,
-  DocumentChangeType,
-  Firestore,
-} from '@google-cloud/firestore';
+import { DocumentChange, DocumentData, QueryDocumentSnapshot, DocumentChangeType, Firestore } from '@google-cloud/firestore';
 import { Handler } from './PubSub';
 
 export type Filter = (change: DocumentChange) => boolean;
@@ -30,13 +24,10 @@ export interface FallThroughHandlerOptions extends FallThroughHandlerBaseOptions
   topic: string;
 }
 
-export function createFallThroughHandler(
-  fs: Firestore,
-  overwriteOptions: FallThroughHandlerOptions
-): [string, Handler] {
+export function createFallThroughHandler(fs: Firestore, overwriteOptions: FallThroughHandlerOptions): [string, Handler] {
   const options = { ...overwriteOptions };
 
-  if (!options.transform) {
+  if (typeof options.transform === 'undefined') {
     options.transform = TransformStrategy.DATA;
   }
 
@@ -51,7 +42,7 @@ export function createFallThroughHandler(
         snapshot.docChanges().forEach(change => {
           if (
             (typeof options.filter === 'function' && !options.filter(change)) ||
-            Array.isArray(options.filter) && !options.filter.includes(change.type)
+            (Array.isArray(options.filter) && !options.filter.includes(change.type))
           ) {
             return;
           }
@@ -80,14 +71,11 @@ export interface FallThroughHandlerFromMapOptions {
   [topic: string]: FallThroughHandlerBaseOptions;
 }
 
-export function createFallThroughHandlerFromMap(
-  fs: Firestore,
-  options: FallThroughHandlerFromMapOptions
-): [string, Handler][] {
+export function createFallThroughHandlerFromMap(fs: Firestore, options: FallThroughHandlerFromMapOptions): [string, Handler][] {
   return Object.keys(options).map(topic =>
     createFallThroughHandler(fs, {
       topic,
       ...(options[topic] as FallThroughHandlerBaseOptions),
-    })
+    }),
   );
 }
