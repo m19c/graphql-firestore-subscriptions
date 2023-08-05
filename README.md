@@ -1,5 +1,8 @@
 # graphql-firestore-subscriptions
 
+> 🚨 Important note!
+> Changing the primary NodeJS Package Manager account results in the new package name `@m19c/graphql-firestore-subscriptions`.
+
 _graphql-firestore-subscriptions_ implements the `PubSubEngine` interface from the [graphql-subscriptions](https://github.com/apollographql/graphql-subscriptions) package.
 
 Unlike other databases, Google's Firestore comes across with real time updates. Therefore, it is not required to publish events to a queue or a pub-sub.
@@ -7,14 +10,14 @@ However, there is still something to do to get the data to the clients. In graph
 
 ## Usage
 
-First of all, you have to install the _graphql-firestore-subscriptions_ package using **yarn** or **npm** by calling either `yarn add graphql-firestore-subscriptions` or `npm i --save graphql-firestore-subscriptions`.
+First of all, you have to install the _graphql-firestore-subscriptions_ package using **yarn** or **npm** by calling either `yarn add @m19c/graphql-firestore-subscriptions` or `npm i --save @m19c/graphql-firestore-subscriptions`.
 
 ### Create a new _graphql-firestore-subscription_ instance
 
 ```typescript
-import PubSub from 'graphql-firestore-subscriptions';
+import PubSub from "@m19c/graphql-firestore-subscriptions"
 
-const ps = new PubSub();
+const ps = new PubSub()
 ```
 
 ### Adding handlers
@@ -31,8 +34,8 @@ ps.registerHandler(() => {
   // subscribe to a topic
   return () => {
     // unsubscribe
-  };
-});
+  }
+})
 ```
 
 The unsubscribe function can either return void or a boolean value. If a boolean value is returned by the unsubscribe function, the `PubSubEngine` will throw an error if the return value is falsey.
@@ -45,47 +48,51 @@ To make the handler-creation as easy as possibile graphql-firestore-subscription
 The following example shows a simple fall-through handler which takes document changes of a collection to broadcast this changes immediately.
 
 ```typescript
-import PubSub, { createFallThroughHandler } from 'graphql-firestore-subscriptions';
-import db from '../path/to/firestore/conenction';
+import PubSub, {
+  createFallThroughHandler,
+} from "@m19c/graphql-firestore-subscriptions"
+import db from "../path/to/firestore/conenction"
 
 // ...
 
 enum Topic {
-  NEW_COMMENT = 'NEW_COMMENT',
+  NEW_COMMENT = "NEW_COMMENT",
 }
 
 ps.registerHandler(
   ...createFallThroughHandler(db, {
     topic: Topic.NEW_COMMENT,
-    collection: 'comment',
-    filter: ['added'],
+    collection: "comment",
+    filter: ["added"],
   })
-);
+)
 ```
 
 You can also create multiple fall-through handlers at once:
 
 ```typescript
-import PubSub, { createFallThroughHandlerFromMap } from 'graphql-firestore-subscriptions';
-import db from '../path/to/firestore/connection';
+import PubSub, {
+  createFallThroughHandlerFromMap,
+} from "@m19c/graphql-firestore-subscriptions"
+import db from "../path/to/firestore/connection"
 
 // ...
 
 enum Topic {
-  NEW_COMMENT = 'NEW_COMMENT',
-  UPDATE_COMMENT = 'UPDATE_COMMENT',
+  NEW_COMMENT = "NEW_COMMENT",
+  UPDATE_COMMENT = "UPDATE_COMMENT",
 }
 
 createFallThroughHandlerFromMap(db, {
   [Topic.NEW_COMMENT]: {
-    collection: 'comment',
-    filter: ['added'],
+    collection: "comment",
+    filter: ["added"],
   },
   [Topic.UPDATE_COMMENT]: {
-    collection: 'comment',
-    filter: ['modified'],
+    collection: "comment",
+    filter: ["modified"],
   },
-}).forEach((topic, handler) => ps.registerHandler(topic, handler));
+}).forEach((topic, handler) => ps.registerHandler(topic, handler))
 ```
 
 See API for additional information about how `createFallThroughHandlerFromMap` / `createFallThroughHandler` work.
@@ -93,28 +100,28 @@ See API for additional information about how `createFallThroughHandlerFromMap` /
 ### Full example
 
 ```typescript
-import PubSub from 'graphql-firestore-subscriptions';
-import db from '../path/to/firestore/connection';
+import PubSub from "@m19c/graphql-firestore-subscriptions"
+import db from "../path/to/firestore/connection"
 
 enum Topic {
-  NEW_COMMENT = 'NEW_COMMENT',
+  NEW_COMMENT = "NEW_COMMENT",
 }
 
-const ps = new PubSub();
+const ps = new PubSub()
 
-ps.registerHandler(Topic.NEW_COMMENT, broadcast =>
+ps.registerHandler(Topic.NEW_COMMENT, (broadcast) =>
   // Note, that `onSnapshot` returns a unsubscribe function which
   // returns void.
-  db.collection('comments').onSnapshot(snapshot => {
+  db.collection("comments").onSnapshot((snapshot) => {
     snapshot
       .docChanges()
-      .filter(change => change.type === 'added')
-      .map(item => broadcast(item.doc.data()));
+      .filter((change) => change.type === "added")
+      .map((item) => broadcast(item.doc.data()))
   })
-);
+)
 
-const iterator = ps.asyncIterator(Topic.NEW_COMMENT);
-const addedComment = await iterator.next();
+const iterator = ps.asyncIterator(Topic.NEW_COMMENT)
+const addedComment = await iterator.next()
 
 // ...
 ```
@@ -148,7 +155,7 @@ export const resolvers = {
       subscribe: () => ps.asyncIterator(Topic.NEW_COMMENT),
     },
   },
-};
+}
 ```
 
 Calling `asyncIterator(topics: string | string[])` or `createAsyncIterator<T>(topics: string | string[], args: T)` will subscribe to the given topics and will return an AsyncIterator bound to the `PubSubEngine` of **graphql-firestore-subscriptions**.
@@ -160,32 +167,36 @@ You can implement the resolver with passing arguments to the subscription
 export const resolvers = {
   Subscription: {
     newComment: {
-      subscribe: (parent, args, context) => ps.createAsyncIterator(Topic.NEW_COMMENT, args),
+      subscribe: (parent, args, context) =>
+        ps.createAsyncIterator(Topic.NEW_COMMENT, args),
     },
   },
-};
+}
 ```
 
-You will be able to access those arguments within the registered handler. 
+You will be able to access those arguments within the registered handler.
 
 ```typescript
 type MyData = { userId: string }
 
 const handler: Handler<MyData> = (broadcast, options) => {
   // options is of type { args: MyData }
-  const { args } = options;
-  
+  const { args } = options
+
   // Note, that `onSnapshot` returns a unsubscribe function which
   // returns void.
-  return db.collection('comments').where('userId', '==', args.userId).onSnapshot(snapshot => {
-    snapshot
-      .docChanges()
-      .filter(change => change.type === 'added')
-      .map(item => broadcast(item.doc.data()));
-  })
+  return db
+    .collection("comments")
+    .where("userId", "==", args.userId)
+    .onSnapshot((snapshot) => {
+      snapshot
+        .docChanges()
+        .filter((change) => change.type === "added")
+        .map((item) => broadcast(item.doc.data()))
+    })
 }
 
-ps.registerHandler(Topic.NEW_COMMENT, handler);
+ps.registerHandler(Topic.NEW_COMMENT, handler)
 ```
 
 ## API
@@ -196,17 +207,17 @@ ps.registerHandler(Topic.NEW_COMMENT, handler);
 function createFallThroughHandler(
   fs: Firestore,
   overwriteOptions: FallThroughHandlerOptions
-): [string, Handler];
+): [string, Handler]
 ```
 
 #### Options
 
-| Name           | Type                                                  | Description                                                   |
-| -------------- | ----------------------------------------------------- | ------------------------------------------------------------- |
-| `topic`\*      | `string`                                              | -                                                             |
-| `collection`\* | `string`                                              | The firebase collection                                       |
-| `transform`    | `TransformStrategy | (change: DocumentChange) => any` | Called to transform the broadcast-payload                     |
-| `filter`       | `(change: DocumentChange) => boolean`                 | Called to filter document changes before they are broadcasted |
+| Name           | Type                                  | Description                                                   |
+| -------------- | ------------------------------------- | ------------------------------------------------------------- | ----------------------------------------- |
+| `topic`\*      | `string`                              | -                                                             |
+| `collection`\* | `string`                              | The firebase collection                                       |
+| `transform`    | `TransformStrategy                    | (change: DocumentChange) => any`                              | Called to transform the broadcast-payload |
+| `filter`       | `(change: DocumentChange) => boolean` | Called to filter document changes before they are broadcasted |
 
 > \* required
 
@@ -216,7 +227,7 @@ function createFallThroughHandler(
 function createFallThroughHandlerFromMap(
   fs: Firestore,
   options: FallThroughHandlerFromMapOptions
-): [string, Handler][];
+): [string, Handler][]
 ```
 
 #### Options
