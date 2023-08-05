@@ -109,6 +109,7 @@ export class CustomAsyncIterator<T, TReturn = unknown, TNext = undefined> implem
   private pullValue(): Promise<IteratorResult<T, TReturn>> {
     return new Promise(resolve => {
       if (this.pushQueue.length !== 0) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         resolve({ value: this.pushQueue.shift()!, done: false });
         return;
       }
