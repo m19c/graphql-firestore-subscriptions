@@ -2,10 +2,10 @@ import { PubSubEngine } from 'graphql-subscriptions';
 
 import { CustomAsyncIterator } from './CustomAsyncIterator';
 
-type Listener = (...args: any[]) => any;
+type Listener = (...args: unknown[]) => any;
 export type Unsubscribe = () => any | boolean;
 export type Handler<T = unknown> = (broadcast: Function, options?: { args: T }) => Unsubscribe;
-export type Subscription = { topic: string; subscriptionId?: number; args?: unknown; unsubscribe?: Unsubscribe; }
+export type Subscription = { topic: string; subscriptionId?: number; args?: unknown; unsubscribe?: Unsubscribe };
 
 /**
  * @class
@@ -46,15 +46,15 @@ export class PubSub implements PubSubEngine {
       throw new Error(`Cannot subscribe to topic ${topic} - no handlers`);
     }
 
-    let subscription = this.subscriptions.get(topic) ?? {} as Subscription;
+    let subscription = this.subscriptions.get(topic) ?? ({} as Subscription);
     const subscriptionId = this.getNextSubscriptionId();
     subscription = {
       topic,
       subscriptionId,
       args: subscription?.args,
-      unsubscribe: handler(onMessage, { ...options, args: subscription?.args })
-    }
-    this.subscriptions.set(topic, subscription)
+      unsubscribe: handler(onMessage, { ...options, args: subscription?.args }),
+    };
+    this.subscriptions.set(topic, subscription);
 
     return Promise.resolve(subscriptionId);
   }
@@ -67,7 +67,7 @@ export class PubSub implements PubSubEngine {
     }
 
     const wasSuccessful = subscription.unsubscribe();
-    this.subscriptions.delete(subscription.topic)
+    this.subscriptions.delete(subscription.topic);
 
     if (typeof wasSuccessful === 'boolean' && !wasSuccessful) {
       throw new Error(`Unable to unsubscribe ${subscriptionId}`);
@@ -76,18 +76,18 @@ export class PubSub implements PubSubEngine {
 
   // ignoring because it's a required implementation function
   // eslint-disable-next-line
-  public async publish(topic: string, payload: any): Promise<void> {
+  public async publish(topic: string, payload: unknown): Promise<void> {
     // noop
   }
 
   public createAsyncIterator<T>(topics: string | string[], args: T): AsyncIterator<T> {
-    (([] as string[]).concat(topics)).forEach((topic) => {
+    ([] as string[]).concat(topics).forEach(topic => {
       this.subscriptions.set(topic, {
         topic: topic,
         subscriptionId: undefined,
         args,
-        unsubscribe: undefined
-      })
+        unsubscribe: undefined,
+      });
     });
     return this.asyncIterator(topics);
   }
