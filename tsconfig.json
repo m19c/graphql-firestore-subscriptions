@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES6",
     "module": "commonjs",
     "lib": ["es6", "es2017", "esnext.asynciterable"],
     "importHelpers": true,
@@ -29,6 +29,6 @@
     "strict": false,
     "alwaysStrict": true
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "example"],
   "include": ["./src/**/*.ts"]
 }

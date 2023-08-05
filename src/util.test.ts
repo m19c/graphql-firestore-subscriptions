@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import {
   Firestore,
   CollectionReference,
@@ -75,8 +75,8 @@ describe('util', () => {
   let fs: Firestore;
 
   beforeEach(() => {
-    collection = createFSCollection(faker.random.uuid());
-    topic = faker.random.uuid();
+    collection = createFSCollection(faker.string.uuid());
+    topic = faker.string.uuid();
     broadcast = jest.fn();
     fs = createFS(collection);
   });
@@ -119,7 +119,7 @@ describe('util', () => {
       topic,
       filter: ['removed'],
     });
-    const data = { id: faker.random.uuid() };
+    const data = { id: faker.string.uuid() };
     const broadcast = jest.fn();
     handler(broadcast);
 
@@ -137,7 +137,7 @@ describe('util', () => {
         awesome: true,
       }),
     });
-    const data = { id: faker.random.uuid() };
+    const data = { id: faker.string.uuid() };
     const broadcast = jest.fn();
     handler(broadcast);
 
@@ -155,7 +155,7 @@ describe('util', () => {
       filter: ['removed'],
       transform: util.TransformStrategy.DOCUMENT,
     });
-    const data = { id: faker.random.uuid() };
+    const data = { id: faker.string.uuid() };
     const broadcast = jest.fn();
     handler(broadcast);
 
@@ -167,8 +167,8 @@ describe('util', () => {
   });
 
   test('createFallThroughHandlerFromMap works as expected', () => {
-    const topicA = faker.random.uuid();
-    const topicB = faker.random.uuid();
+    const topicA = faker.string.uuid();
+    const topicB = faker.string.uuid();
     const options: util.FallThroughHandlerBaseOptions = {
       collection: collection.id,
     };
